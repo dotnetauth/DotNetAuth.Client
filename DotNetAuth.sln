@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetAuth.Client", "DotNetAuth.Client\DotNetAuth.Client.csproj", "{C1245F7B-F93A-469C-B723-3392B137A200}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetAuth.Identity", "DotNetAuth.Identity\DotNetAuth.Identity.csproj", "{A2A954E1-9F84-4974-A7D1-1D273A4E5CF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetAuth.ClientTests", "DotNetAuth.ClientTests\DotNetAuth.ClientTests.csproj", "{DF11F9D6-462E-4495-8E90-FEFEC154F5CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1245F7B-F93A-469C-B723-3392B137A200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1245F7B-F93A-469C-B723-3392B137A200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1245F7B-F93A-469C-B723-3392B137A200}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1245F7B-F93A-469C-B723-3392B137A200}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2A954E1-9F84-4974-A7D1-1D273A4E5CF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2A954E1-9F84-4974-A7D1-1D273A4E5CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2A954E1-9F84-4974-A7D1-1D273A4E5CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2A954E1-9F84-4974-A7D1-1D273A4E5CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF11F9D6-462E-4495-8E90-FEFEC154F5CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF11F9D6-462E-4495-8E90-FEFEC154F5CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF11F9D6-462E-4495-8E90-FEFEC154F5CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF11F9D6-462E-4495-8E90-FEFEC154F5CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF729E9C-DC65-4E05-AA1A-6D36412F7FDA}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>a lightweight and flexible implementation of the OAuth 2.1 specification for .NET. Unlike many other libraries, DotNetAuth offers developers full control over the OAuth process, particularly in customizing the consent screen and defining endpoints</Description>
+		<RepositoryUrl>https://github.com/dotnetauth/DotNetAuth.Client</RepositoryUrl>
+		<PackageProjectUrl>https://dotnetauth.github.io/</PackageProjectUrl>
+		<Copyright>© 2023 Nojin. All rights reserved.</Copyright>
+		<PackageTags>Authentication OAuth OAuth2</PackageTags>
+		<Authors>Nojin</Authors>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Providers\CitrixOnlineOAuth2.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\LICENSE" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+</Project>
