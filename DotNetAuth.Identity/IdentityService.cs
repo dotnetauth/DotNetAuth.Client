@@ -28,7 +28,7 @@ public class IdentityService
     /// <param name="rediredUri">The URI to redirect to after authentication.</param>
     /// <param name="requiredProperties">The required profile properties.</param>
     /// <returns>The authentication URI.</returns>
-    public Uri GetAuthenticationUri(string provider, Uri rediredUri, ProfileProperty[] requiredProperties, AuthorizationSettings authorizationSettings)
+    public Uri GetAuthenticationUri(string provider, Uri rediredUri, ProfileProperty[] requiredProperties, string state, AuthorizationSettings authorizationSettings)
     {
         var credentials = authenticationRegistry.GetCredentialsFor(provider);
         var definition = authenticationRegistry.GetProfileDefinitionFor(provider);
@@ -41,6 +41,7 @@ public class IdentityService
             credentials,
             rediredUri.AbsoluteUri,
             scope,
+            state,
             authorizationSettings);
     }
 
@@ -53,7 +54,7 @@ public class IdentityService
     /// <param name="requiredProperties">The required profile properties.</param>
     /// <returns>The user's profile.</returns>
     /// <exception cref="System.Exception">Thrown when login fails.</exception>
-    public async Task<Profile> GetProfile(string provider, Uri requestedUri, string redirectUri, ProfileProperty[] requiredProperties)
+    public async Task<Profile> GetProfile(string provider, Uri requestedUri, string redirectUri, Func<string?, bool>? checkState, ProfileProperty[] requiredProperties)
     {
         var credentials = authenticationRegistry.GetCredentialsFor(provider);
         var definition = authenticationRegistry.GetProfileDefinitionFor(provider);
@@ -63,7 +64,8 @@ public class IdentityService
             handler,
             credentials,
             requestedUri,
-            redirectUri);
+            redirectUri,
+            checkState);
 
         if (response != null)
         {

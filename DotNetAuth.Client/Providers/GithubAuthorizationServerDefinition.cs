@@ -27,9 +27,9 @@ public class GithubAuthorizationServerDefinition : AuthorizationServerDefinition
     /// <param name="scope">The scope of access or set of permissions OAuth user is demanding.</param>
     /// <param name="stateManager">An implementation of <see cref="IStateStore"/> for providing state value.</param>
     /// <returns>A list of parameters to be included in authorization endpoint.</returns>
-    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
+    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, string? state)
     {
-        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, stateManager);
+        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, state);
         this.authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         return result;

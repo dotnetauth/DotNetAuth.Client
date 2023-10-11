@@ -46,15 +46,15 @@ public abstract class AuthorizationServerDefinitionBase
     /// <param name="scope">The scope of access or set of permissions OAuth client is demanding.</param>
     /// <param name="stateStore">An implementation of <see cref="IStateStore"/> for providing state value.</param>
     /// <returns>A list of parameters to be included in authorization endpoint.</returns>
-    public virtual Dictionary<string,string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
+    public virtual Dictionary<string,string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, string? state)
     {
         var result = new Dictionary<string, string>{ 
             {"client_id", clientCredentials.ClientId},
             {"response_type", "code"},
         };
 
-        if( stateStore != null)
-            result.Add("state", stateStore.GetState());
+        if( state != null)
+            result.Add("state", state);
         if(scope != null)
             result.Add("scope", scope);
         if (redirectUri != null)

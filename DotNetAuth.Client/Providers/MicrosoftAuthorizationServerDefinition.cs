@@ -12,9 +12,9 @@ public class MicrosoftAuthorizationServerDefinition : AuthorizationServerDefinit
         this.authorizationSettings = authorizationSettings;
     }
 
-    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
+    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, string? state)
     {
-        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, stateManager);
+        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, state);
         this.authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         return result;

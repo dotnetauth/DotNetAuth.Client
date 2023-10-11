@@ -18,9 +18,9 @@ namespace DotNetAuth.ClientTests.Mocks
             this.parseAccessTokenResultResponse = parseAccessTokenResultResponse;
         }
 
-        public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
+        public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, string? state)
         {
-            return this.getAuthorizationRequestParametersResponse ?? base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, authorizationSettings, stateStore);
+            return this.getAuthorizationRequestParametersResponse ?? base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, authorizationSettings, state);
         }
 
         public override Dictionary<string, string> GetAccessTokenRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string code, string grantType = "authorization_code")
