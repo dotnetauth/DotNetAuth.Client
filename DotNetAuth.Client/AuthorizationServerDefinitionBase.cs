@@ -41,15 +41,15 @@ public abstract class AuthorizationServerDefinitionBase
     /// When implementing a custom provider you need to override this method and fill the list of parameters according to the provider's documentation.
     /// However the default implementation provides a response for common OAuth parameters(e.g client_id,redirect_uri,scope,state,response_type)
     /// </remarks>
-    /// <param name="oauthCredentials">The client's credentials.</param>
+    /// <param name="clientCredentials">The client's credentials.</param>
     /// <param name="redirectUri">The redirect URI in which OAuth client wishes sites user to be returned to finally</param>
     /// <param name="scope">The scope of access or set of permissions OAuth client is demanding.</param>
     /// <param name="stateStore">An implementation of <see cref="IStateStore"/> for providing state value.</param>
     /// <returns>A list of parameters to be included in authorization endpoint.</returns>
-    public virtual Dictionary<string,string> GetAuthorizationRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
+    public virtual Dictionary<string,string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
     {
         var result = new Dictionary<string, string>{ 
-            {"client_id", oauthCredentials.ClientId},
+            {"client_id", clientCredentials.ClientId},
             {"response_type", "code"},
         };
 
@@ -73,12 +73,12 @@ public abstract class AuthorizationServerDefinitionBase
     /// <param name="code">The authorization code received from the authorization endpoint.</param>
     /// <param name="grantType">The grant type for the access token request. Default is "authorization_code".</param>
     /// <returns>A list of parameters to be included in the token endpoint.</returns>
-    public virtual Dictionary<string,string> GetAccessTokenRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string code, string grantType = "authorization_code")
+    public virtual Dictionary<string,string> GetAccessTokenRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string code, string grantType = "authorization_code")
     {
         var result = new Dictionary<string, string> {
             {"code", code},
-            {"client_id", oauthCredentials.ClientId},
-            {"client_secret", oauthCredentials.ClientSecret},
+            {"client_id", clientCredentials.ClientId},
+            {"client_secret", clientCredentials.ClientSecret},
             {"grant_type", grantType}
         };
         if (redirectUri != null)

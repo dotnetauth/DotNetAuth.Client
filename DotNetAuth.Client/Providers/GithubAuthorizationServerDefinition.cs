@@ -22,14 +22,14 @@ public class GithubAuthorizationServerDefinition : AuthorizationServerDefinition
     /// <summary>
     /// Returns a list of parameters to be included in authorization endpoint as query string. 
     /// </summary>
-    /// <param name="oauthCredentials">The user's application credentials.</param>
+    /// <param name="clientCredentials">The client's credentials.</param>
     /// <param name="redirectUri">The redirect URI in which OAuth user wishes sites user to be returned to finally</param>
     /// <param name="scope">The scope of access or set of permissions OAuth user is demanding.</param>
     /// <param name="stateManager">An implementation of <see cref="IStateStore"/> for providing state value.</param>
     /// <returns>A list of parameters to be included in authorization endpoint.</returns>
-    public override Dictionary<string, string> GetAuthorizationRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
+    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
     {
-        var result = base.GetAuthorizationRequestParameters(oauthCredentials, redirectUri, scope, null, stateManager);
+        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, stateManager);
         this.authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         return result;

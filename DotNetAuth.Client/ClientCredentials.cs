@@ -7,4 +7,4 @@ namespace DotNetAuth.Client;
 /// <param name="ClientSecret"> The secret ID of the application, used to validate requests. </param>
 /// <remarks>
 /// </remarks>
-public record OAuthCredentials(string ClientId, string ClientSecret);
+public record ClientCredentials(string ClientId, string ClientSecret);

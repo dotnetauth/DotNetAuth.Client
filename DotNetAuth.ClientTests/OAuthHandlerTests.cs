@@ -26,7 +26,7 @@ namespace DotNetAuth.Client.Tests
         {
             var mockAuthorizationServerDefinition = new Mock<AuthorizationServerDefinitionBase>();
             mockAuthorizationServerDefinition
-                .Setup(def => def.GetAuthorizationRequestParameters(It.IsAny<OAuthCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<AuthorizationSettings>(),  It.IsAny<IStateStore?>())).Returns(
+                .Setup(def => def.GetAuthorizationRequestParameters(It.IsAny<ClientCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<AuthorizationSettings>(),  It.IsAny<IStateStore?>())).Returns(
                 new Dictionary<string, string>
                 {
                     { "client_id", "mock_client_id" },
@@ -34,7 +34,7 @@ namespace DotNetAuth.Client.Tests
                 }
             );
             mockAuthorizationServerDefinition
-                .Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<OAuthCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<ClientCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(
                     new Dictionary<string, string>
                     {
@@ -94,15 +94,15 @@ namespace DotNetAuth.Client.Tests
                 ""scope"": ""scope1 scope2""
             }");
 
-            var oauthHandler = new OAuthHandler(stateStoreMock.Object, codeVerifierStoreMock.Object, httpClientFactoryMock.Object);
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(stateStoreMock.Object, codeVerifierStoreMock.Object, httpClientFactoryMock.Object);
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             string redirectUri = "https://example.com/callback";
             string accessScope = "scope1 scope2";
 
             var authorizationServerDefinition = new AuthorizationServerDefinitionMock(null, null, null, null, null);
 
             // Act
-            var authUri = oauthHandler.GetAuthorizationUri(authorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var authUri = oauthHandler.GenerateAuthorizeUri(authorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
 
             // Assert
             Assert.IsNotNull(authUri);
@@ -142,13 +142,13 @@ namespace DotNetAuth.Client.Tests
                 ""scope"": ""scope1 scope2""
             }");
 
-            var oauthHandler = new OAuthHandler(stateStoreMock.Object, codeVerifierStoreMock.Object, httpClientFactoryMock.Object);
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(stateStoreMock.Object, codeVerifierStoreMock.Object, httpClientFactoryMock.Object);
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             string redirectUri = "https://example.com/callback";
             var responseUri = new Uri("https://example.com/callback?code=mock_auth_code&state=mock_state");
 
             // Act
-            var result = await oauthHandler.ProcessUserResponse(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri);
+            var result = await oauthHandler.HandleCallback(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri);
 
             // Assert
             Assert.IsNotNull(result);
@@ -165,14 +165,14 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_WithValidParameters_ReturnsAuthorizationUri()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             var redirectUri = "https://example.com/callback";
             var accessScope = "scope1 scope2";
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act
-            var result = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var result = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
 
             // Assert
             Assert.NotNull(result);
@@ -183,14 +183,14 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_WithCodeVerifierStore_ReturnsAuthorizationUriWithCodeChallenge()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             var redirectUri = "https://example.com/callback";
             var accessScope = "scope1 scope2";
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act
-            var result = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var result = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
 
             // Assert
             Assert.NotNull(result);
@@ -202,14 +202,14 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_WithNullCodeVerifierStore_DoesNotIncludeCodeChallenge()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), null, () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), null, () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             var redirectUri = "https://example.com/callback";
             var accessScope = "scope1 scope2";
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act
-            var result = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var result = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
 
             // Assert
             Assert.NotNull(result);
@@ -221,15 +221,15 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_NullAuthorizationServerDefinition_ThrowsArgumentNullException()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             var redirectUri = "https://example.com/callback";
             var accessScope = "scope1 scope2";
             AuthorizationServerDefinitionBase? authorizationServerDefinition = null;
 
             // Act and Assert
             #pragma warning disable CS8604 // Possible null reference argument.
-            Assert.Throws<ArgumentNullException>(() => oauthHandler.GetAuthorizationUri(authorizationServerDefinition, appCredentials, redirectUri, accessScope, null));
+            Assert.Throws<ArgumentNullException>(() => oauthHandler.GenerateAuthorizeUri(authorizationServerDefinition, appCredentials, redirectUri, accessScope, null));
             #pragma warning restore CS8604 // Possible null reference argument.
         }
 
@@ -237,15 +237,15 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_NullOAuthCredentials_ThrowsArgumentNullException()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            OAuthCredentials? appCredentials = null;
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            ClientCredentials? appCredentials = null;
             var redirectUri = "https://example.com/callback";
             var accessScope = "scope1 scope2";
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act and Assert
             #pragma warning disable CS8604 // Possible null reference argument.
-            Assert.Throws<ArgumentNullException>(() => oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null));
+            Assert.Throws<ArgumentNullException>(() => oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null));
             #pragma warning restore CS8604 // Possible null reference argument.
         }
 
@@ -253,15 +253,15 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_NullRedirectUri_ReturnsAuthorizationUri()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             string? redirectUri = null;
             var accessScope = "scope1 scope2";
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act and Assert
             #pragma warning disable CS8604 // Possible null reference argument.
-            var result = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var result = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
             #pragma warning restore CS8604 // Possible null reference argument.
             Assert.NotNull(result);
         }
@@ -270,15 +270,15 @@ namespace DotNetAuth.Client.Tests
         public void GetAuthorizationUri_NullAccessScope_SetsEmptyScopeInParameters()
         {
             // Arrange
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("client_id", "client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("client_id", "client_secret");
             var redirectUri = "https://example.com/callback";
             string? accessScope = null;
             var mockAuthorizationServerDefinition = CreateMockAuthorizationServerDefinition();
 
             // Act
             #pragma warning disable CS8604 // Possible null reference argument.
-            var result = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
+            var result = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition, appCredentials, redirectUri, accessScope, null);
             #pragma warning restore CS8604 // Possible null reference argument.
 
             // Assert
@@ -297,7 +297,7 @@ namespace DotNetAuth.Client.Tests
             var expectedScope = "scope1 scope2";
 
             var mockAuthorizationServerDefinition = new Mock<AuthorizationServerDefinitionBase>();
-            mockAuthorizationServerDefinition.Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<OAuthCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(
+            mockAuthorizationServerDefinition.Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<ClientCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(
                 new Dictionary<string, string>
                 {
                     { "code", "mock_auth_code" },
@@ -344,13 +344,13 @@ namespace DotNetAuth.Client.Tests
 
             httpClientFactoryMock.Setup(f => f()).Returns(httpClientMock);
 
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), httpClientFactoryMock.Object);
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), httpClientFactoryMock.Object);
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             var responseUri = new Uri("https://example.com/callback?code=mock_auth_code&state=mock_state");
             var redirectUri = "https://example.com/callback";
 
             // Act
-            var result = await oauthHandler.ProcessUserResponse(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
+            var result = await oauthHandler.HandleCallback(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
 
             // Assert
             Assert.NotNull(result);
@@ -402,13 +402,13 @@ namespace DotNetAuth.Client.Tests
 
             httpClientFactoryMock.Setup(f => f()).Returns(httpClientMock);
 
-            var oauthHandler = new OAuthHandler(CreateMockStateStore(), CreateMockCodeVerifierStore(), httpClientFactoryMock.Object);
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(CreateMockStateStore(), CreateMockCodeVerifierStore(), httpClientFactoryMock.Object);
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             var responseUri = new Uri("https://example.com/callback?error=invalid_request&error_description=The+request+is+missing+a+required+parameter&error_uri=https%3A%2F%2Fexample.com%2Ferror&state=mock_state");
             string redirectUri = "https://example.com/callback";
 
             // Act
-            var result = await oauthHandler.ProcessUserResponse(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
+            var result = await oauthHandler.HandleCallback(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
 
             // Assert
             Assert.NotNull(result);
@@ -426,13 +426,13 @@ namespace DotNetAuth.Client.Tests
             var mockStateStore = new Mock<IStateStore>();
             mockStateStore.Setup(store => store.CheckState(It.IsAny<string>())).Returns(false);
 
-            var oauthHandler = new OAuthHandler(mockStateStore.Object, CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(mockStateStore.Object, CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             var responseUri = new Uri("https://example.com/callback?code=mock_auth_code&state=invalid_state");
             string redirectUri = "https://example.com/callback";
 
             // Act and Assert
-            Assert.ThrowsAsync<Exception>(async () => await oauthHandler.ProcessUserResponse(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri));
+            Assert.ThrowsAsync<Exception>(async () => await oauthHandler.HandleCallback(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri));
         }
 
         [Test]
@@ -447,7 +447,7 @@ namespace DotNetAuth.Client.Tests
 
             // Mock AuthorizationServerDefinitionBase
             var mockAuthorizationServerDefinition = new Mock<AuthorizationServerDefinitionBase>();
-            mockAuthorizationServerDefinition.Setup(def => def.GetAuthorizationRequestParameters(It.IsAny<OAuthCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<AuthorizationSettings>(), It.IsAny<IStateStore>())).Returns(
+            mockAuthorizationServerDefinition.Setup(def => def.GetAuthorizationRequestParameters(It.IsAny<ClientCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<AuthorizationSettings>(), It.IsAny<IStateStore>())).Returns(
                 new Dictionary<string, string>
                 {
                 { "client_id", "mock_client_id" },
@@ -457,7 +457,7 @@ namespace DotNetAuth.Client.Tests
                 { "redirect_uri", "https://example.com/callback" }
                 }
             );
-            mockAuthorizationServerDefinition.Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<OAuthCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(
+            mockAuthorizationServerDefinition.Setup(def => def.GetAccessTokenRequestParameters(It.IsAny<ClientCredentials>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(
                 new Dictionary<string, string>
                 {
                 { "code", "mock_auth_code" },
@@ -510,14 +510,14 @@ namespace DotNetAuth.Client.Tests
             httpClientFactoryMock.Setup(f => f()).Returns(httpClientMock);
 
 
-            var oauthHandler = new OAuthHandler(mockStateStore.Object, mockCodeVerifierStore.Object, httpClientFactoryMock.Object);
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(mockStateStore.Object, mockCodeVerifierStore.Object, httpClientFactoryMock.Object);
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             var responseUri = new Uri("https://example.com/callback?code=mock_auth_code&state=mock_state");
             string redirectUri = "https://example.com/callback";
 
             // Act
-            var authUri = oauthHandler.GetAuthorizationUri(mockAuthorizationServerDefinition.Object, appCredentials, redirectUri, "scope1 scope2", null);
-            var result = await oauthHandler.ProcessUserResponse(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
+            var authUri = oauthHandler.GenerateAuthorizeUri(mockAuthorizationServerDefinition.Object, appCredentials, redirectUri, "scope1 scope2", null);
+            var result = await oauthHandler.HandleCallback(mockAuthorizationServerDefinition.Object, appCredentials, responseUri, redirectUri);
 
             // Assert
             Assert.NotNull(authUri);
@@ -540,13 +540,13 @@ namespace DotNetAuth.Client.Tests
             mockStateStore.Setup(store => store.GetState()).Returns("mock_state");
             mockStateStore.Setup(store => store.CheckState("invalid_state")).Returns(false);
 
-            var oauthHandler = new OAuthHandler(mockStateStore.Object, CreateMockCodeVerifierStore(), () => new HttpClient());
-            var appCredentials = new OAuthCredentials("mock_client_id", "mock_client_secret");
+            var oauthHandler = new OAuth2Authenticator(mockStateStore.Object, CreateMockCodeVerifierStore(), () => new HttpClient());
+            var appCredentials = new ClientCredentials("mock_client_id", "mock_client_secret");
             var responseUri = new Uri("https://example.com/callback?code=mock_auth_code&state=invalid_state");
             string redirectUri = "https://example.com/callback";
 
             // Act and Assert
-            Assert.ThrowsAsync<Exception>(async () => await oauthHandler.ProcessUserResponse(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri));
+            Assert.ThrowsAsync<Exception>(async () => await oauthHandler.HandleCallback(CreateMockAuthorizationServerDefinition(), appCredentials, responseUri, redirectUri));
         }
     }
 }

@@ -8,9 +8,9 @@ public class FacebookAuthorizationServerDefinition : AuthorizationServerDefiniti
     {
     }
 
-    public override Dictionary<string, string> GetAuthorizationRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
+    public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateManager)
     {
-        var result = base.GetAuthorizationRequestParameters(oauthCredentials, redirectUri, scope, null, stateManager);
+        var result = base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, null, stateManager);
         result.Add("auth_type", "reauthenticate");
         authorizationSettings?.ModifyAuthorizationRequestParameters(result);
         return result;

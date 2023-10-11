@@ -7,7 +7,7 @@ namespace DotNetAuth.Identity;
 /// </summary>
 public class IdentityService
 {
-    private readonly OAuthHandler oauthHandler;
+    private readonly OAuth2Authenticator oauthHandler;
     private readonly AuthenticationRegistry authenticationRegistry;
 
     /// <summary>
@@ -15,7 +15,7 @@ public class IdentityService
     /// </summary>
     /// <param name="oauthHandler">An instance of <see cref="OAuthHandler"/> to handle OAuth operations.</param>
     /// <param name="authenticationRegistry">An instance of <see cref="AuthenticationRegistry"/> to manage authentication providers.</param>
-    public IdentityService(OAuthHandler oauthHandler, AuthenticationRegistry authenticationRegistry)
+    public IdentityService(OAuth2Authenticator oauthHandler, AuthenticationRegistry authenticationRegistry)
     {
         this.oauthHandler = oauthHandler;
         this.authenticationRegistry = authenticationRegistry;
@@ -36,7 +36,7 @@ public class IdentityService
 
         var scope = definition.GetRequiredScope(requiredProperties);
 
-        return oauthHandler.GetAuthorizationUri(
+        return oauthHandler.GenerateAuthorizeUri(
             handler,
             credentials,
             rediredUri.AbsoluteUri,
@@ -59,7 +59,7 @@ public class IdentityService
         var definition = authenticationRegistry.GetProfileDefinitionFor(provider);
         var handler = authenticationRegistry.GetProviderDefinition(provider);
 
-        var response = await oauthHandler.ProcessUserResponse(
+        var response = await oauthHandler.HandleCallback(
             handler,
             credentials,
             requestedUri,

@@ -5,7 +5,7 @@ namespace DotNetAuth.Client;
 /// <summary>
 /// Handles the OAuth authentication process, including generating the authorization URL and processing the user's response.
 /// </summary>
-public class OAuthHandler
+public class OAuth2Authenticator
 {
     private readonly IStateStore? stateStore;
     private readonly ICodeVerifierStore? codeVerifierStore;
@@ -13,7 +13,7 @@ public class OAuthHandler
 
     /// <param name="stateStore">An instance of <see cref="IStateStore"/> for managing the state parameter.</param>
     /// <param name="codeVerifierStore">An instance of <see cref="ICodeVerifierStore"/> for managing the code verifier.</param>
-    public OAuthHandler(IStateStore? stateStore, ICodeVerifierStore? codeVerifierStore, Func<HttpClient> httpClientFactory)
+    public OAuth2Authenticator(IStateStore? stateStore, ICodeVerifierStore? codeVerifierStore, Func<HttpClient> httpClientFactory)
     {
         this.stateStore = stateStore;
         this.codeVerifierStore = codeVerifierStore;
@@ -25,19 +25,19 @@ public class OAuthHandler
     /// This URL leads to the authorization endpoint of the OAuth service provider, where the user can grant or deny access to your application.
     /// </summary>
     /// <param name="authorizationServerDefinition">An instance of a class representing an OAuth service provider. Predefined implementations can be found in the <see cref="DotNetAuth.OAuth2.Providers"/> namespace.</param>
-    /// <param name="appCredentials">Your application's credentials, obtained by registering your application with the service provider.</param>
+    /// <param name="clientCredentials">Your application's credentials, obtained by registering your application with the service provider.</param>
     /// <param name="afterAuthenticationRedirectUri">The URI to which the service provider will redirect the user after they have made a decision about granting access to your application. This has to be matching the client registration.</param>
     /// <param name="accessScope">A string representing the scope of access rights your application is requesting. The format of this string depends on the service provider.</param>
     /// <returns>The authorization URL to which the user should be redirected.</returns>
-    public Uri GetAuthorizationUri(AuthorizationServerDefinitionBase authorizationServerDefinition, OAuthCredentials appCredentials, string afterAuthenticationRedirectUri, string accessScope, AuthorizationSettings? authorizationSettings)
+    public Uri GenerateAuthorizeUri(AuthorizationServerDefinitionBase authorizationServerDefinition, ClientCredentials clientCredentials, string afterAuthenticationRedirectUri, string accessScope, AuthorizationSettings? authorizationSettings)
     {
         if (authorizationServerDefinition == null)
             throw new ArgumentNullException(nameof(authorizationServerDefinition));
 
-        if (appCredentials == null)
-            throw new ArgumentNullException(nameof(appCredentials));
+        if (clientCredentials == null)
+            throw new ArgumentNullException(nameof(clientCredentials));
 
-        var authParams = authorizationServerDefinition.GetAuthorizationRequestParameters(appCredentials, afterAuthenticationRedirectUri, accessScope, authorizationSettings, stateStore);
+        var authParams = authorizationServerDefinition.GetAuthorizationRequestParameters(clientCredentials, afterAuthenticationRedirectUri, accessScope, authorizationSettings, stateStore);
 
         if (codeVerifierStore != null)
         {
@@ -68,13 +68,13 @@ public class OAuthHandler
     /// This method checks if the user has granted access and, if so, retrieves the access token.
     /// </summary>
     /// <param name="authorizationServerDefinition">An instance of a class representing the OAuth service provider.</param>
-    /// <param name="appCredentials">Your application's credentials.</param>
-    /// <param name="responseUri">The URI to which the user was redirected after making a decision about granting access.</param>
-    /// <param name="afterAuthenticationRedirectUri">The URI to which the service provider was supposed to redirect the user.</param>
+    /// <param name="clientCredentials">Your application's credentials.</param>
+    /// <param name="receivedCallbackUrl">The full URL to which the user was redirected after OAuth provider's decision.</param>
+    /// <param name="registeredRedirectUrl">The URL that was registered with the authorization server, used for verification.</param>
     /// <returns>A <see cref="AuthorizationResponse"/> object containing the access token and additional parameters, or error details if an error occurred.</returns>
-    public async Task<AuthorizationResponse> ProcessUserResponse(AuthorizationServerDefinitionBase authorizationServerDefinition, OAuthCredentials appCredentials, Uri responseUri, string afterAuthenticationRedirectUri)
+    public async Task<AuthorizationResponse> HandleCallback(AuthorizationServerDefinitionBase authorizationServerDefinition, ClientCredentials clientCredentials, Uri receivedCallbackUrl, string registeredRedirectUrl)
     {
-        var queryParameters = HttpUtility.ParseQueryString(responseUri.Query) ?? throw new Exception("Invalid response");
+        var queryParameters = HttpUtility.ParseQueryString(receivedCallbackUrl.Query) ?? throw new Exception("Invalid response");
 
         // Check if the state parameter in the response matches the original state
         string? responseState = queryParameters.Get("state");
@@ -101,7 +101,7 @@ public class OAuthHandler
         if (string.IsNullOrEmpty(authCode))
             throw new Exception("code is missing in response");
 
-        var tokenParams = authorizationServerDefinition.GetAccessTokenRequestParameters(appCredentials, afterAuthenticationRedirectUri, authCode);
+        var tokenParams = authorizationServerDefinition.GetAccessTokenRequestParameters(clientCredentials, registeredRedirectUrl, authCode);
 
         if (codeVerifierStore != null)
         {

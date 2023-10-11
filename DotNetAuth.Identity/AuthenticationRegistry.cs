@@ -4,19 +4,19 @@ namespace DotNetAuth.Identity;
 
 public class AuthenticationRegistry
 {
-    private Dictionary<string, OAuthCredentials> credentialsRegistry = new Dictionary<string, OAuthCredentials>();
+    private Dictionary<string, ClientCredentials> credentialsRegistry = new Dictionary<string, ClientCredentials>();
     private Dictionary<string, ProfileDefinitionBase> profileRegistry = new Dictionary<string, ProfileDefinitionBase>();
     private Dictionary<string, AuthorizationServerDefinitionBase> providerRegistry = new Dictionary<string, AuthorizationServerDefinitionBase>();
 
     public void Add(string name, string clientId, string clientSecret, AuthorizationServerDefinitionBase providerDefinition, ProfileDefinitionBase profileDefinition)
     {
-        var credentials = new OAuthCredentials(clientId, clientSecret);
+        var credentials = new ClientCredentials(clientId, clientSecret);
         credentialsRegistry[name] = credentials;
         profileRegistry[name] = profileDefinition;
         providerRegistry[name] = providerDefinition;
     }
 
-    public OAuthCredentials GetCredentialsFor(string name)
+    public ClientCredentials GetCredentialsFor(string name)
     {
         if (credentialsRegistry.ContainsKey(name))
         {

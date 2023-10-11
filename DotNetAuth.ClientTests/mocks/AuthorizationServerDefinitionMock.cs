@@ -18,14 +18,14 @@ namespace DotNetAuth.ClientTests.Mocks
             this.parseAccessTokenResultResponse = parseAccessTokenResultResponse;
         }
 
-        public override Dictionary<string, string> GetAuthorizationRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
+        public override Dictionary<string, string> GetAuthorizationRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string? scope, AuthorizationSettings? authorizationSettings, IStateStore? stateStore)
         {
-            return this.getAuthorizationRequestParametersResponse ?? base.GetAuthorizationRequestParameters(oauthCredentials, redirectUri, scope, authorizationSettings, stateStore);
+            return this.getAuthorizationRequestParametersResponse ?? base.GetAuthorizationRequestParameters(clientCredentials, redirectUri, scope, authorizationSettings, stateStore);
         }
 
-        public override Dictionary<string, string> GetAccessTokenRequestParameters(OAuthCredentials oauthCredentials, string? redirectUri, string code, string grantType = "authorization_code")
+        public override Dictionary<string, string> GetAccessTokenRequestParameters(ClientCredentials clientCredentials, string? redirectUri, string code, string grantType = "authorization_code")
         {
-            return this.getAccessTokenRequestParametersResponse ?? base.GetAccessTokenRequestParameters(oauthCredentials, redirectUri, code, grantType);
+            return this.getAccessTokenRequestParametersResponse ?? base.GetAccessTokenRequestParameters(clientCredentials, redirectUri, code, grantType);
         }
 
         public override AuthorizationResponse ParseAccessTokenResult(string body)
